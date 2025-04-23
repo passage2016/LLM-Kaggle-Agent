@@ -43,7 +43,7 @@ class LLMAgent:
         code_blocks = re.findall(pattern, response, flags=re.DOTALL)
         return [block.strip() for block in code_blocks]
 
-    def do_task(self):
+    def do_task(self, task_name):
         system_input = f"""\
             You are a Kaggle grandmaster expert in machine learning and data science. Your task is to generate high quality python code for the given task
 You are in a jupyter notebook environment, Generate python code for the notebook cell according to the provided task.
@@ -60,7 +60,7 @@ Note : ** Please skip visualization and using plots**
         response = self.get_response(user_prompt, system_input)
         code = "\n".join(self.get_code_from_response(response))
         print("Generated Code:", code)
-        stdout, stderr = execute_python_code(code)
+        stdout, stderr = execute_python_code(code, f"{task_name}.py")
         print("Output:", stdout)
         print("Errors:", stderr)
         while len(stderr) >0:
@@ -70,12 +70,14 @@ You are in a jupyter notebook environment, Generate python code for the notebook
 Pay attention to previous codes and for new cell continue integrity of code and solution.
             """
             prompt_text = f"""\
-                For the code, I got this error, please help me to fix the code
+                this is my code
+                {code}
+                For the code, I got this error, please help me to fix the code, and return all of the code back
                 {stderr}"""
             response = self.get_response(prompt_text, system_input)
-            code = self.get_code_from_response(response)
+            code = "\n".join(self.get_code_from_response(response))
             print("Generated Code:", code)
-            stdout, stderr = execute_python_code(code)
+            stdout, stderr = execute_python_code(code, f"{task_name}.py")
             print("Output:", stdout)
             print("Errors:", stderr)
         with open("./data/result.csv", "w", encoding="utf-8") as f:
