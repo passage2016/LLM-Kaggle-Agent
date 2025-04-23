@@ -1,6 +1,11 @@
 
+import os
+import re
+
 from prompts import load_prompt
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_deepseek import ChatDeepSeek
+from langchain_core.output_parsers import StrOutputParser
 
 from executor import execute_python_code
 from data_manager import DataManager
@@ -18,22 +23,27 @@ class LLMAgent:
         
         
         self.model = ChatDeepSeek(model=self.model_name)
-        chain = prompt | model | StrOutputParser()
         
     
-    def get_response(prompt_text, system_input = None):
+    def get_response(self, user_prompt, system_input = None):
         if not system_input:
             system_input = "You are an AI assistant, please answer user's question."
         prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", system_input),
-                MessagesPlaceholder("history"),
                 ("user", "{input}")
             ]
         )
-        return text =  chain.invoke(prompt_text)
+        chain = prompt | self.model | StrOutputParser()
+        return chain.invoke({"input": user_prompt})
+    
+    def get_code_from_response(self, response):
+        print(response)
+        pattern = r'```python(.*?)```'
+        code_blocks = re.findall(pattern, response, flags=re.DOTALL)
+        return [block.strip() for block in code_blocks]
 
-    def do_task(self, task_text):
+    def do_task(self):
         system_input = f"""\
             You are a Kaggle grandmaster expert in machine learning and data science. Your task is to generate high quality python code for the given task
 You are in a jupyter notebook environment, Generate python code for the notebook cell according to the provided task.
@@ -43,8 +53,12 @@ There are {self.data_manager.get_file_count()} file in ./data/
 {self.data_manager.get_sample_data_texts()}
 </sample_data>
         """
-        response = get_response(task_text, system_input)
-        code = self.get_code_from_response(response)
+        user_prompt = """\
+please write code for this task.
+Note : ** Please skip visualization and using plots**
+"""
+        response = self.get_response(user_prompt, system_input)
+        code = "\n".join(self.get_code_from_response(response))
         print("Generated Code:", code)
         stdout, stderr = execute_python_code(code)
         print("Output:", stdout)
@@ -58,7 +72,7 @@ Pay attention to previous codes and for new cell continue integrity of code and 
             prompt_text = f"""\
                 For the code, I got this error, please help me to fix the code
                 {stderr}"""
-            response = get_response(prompt_text, system_input)
+            response = self.get_response(prompt_text, system_input)
             code = self.get_code_from_response(response)
             print("Generated Code:", code)
             stdout, stderr = execute_python_code(code)

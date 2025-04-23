@@ -1,3 +1,5 @@
 openai
 autogluon
 pyyaml
+langchain
+langchain_deepseek
