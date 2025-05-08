@@ -1,15 +1,20 @@
 import os
 import subprocess
+from kaggle_api import submit_to_kaggle, download_files
 
     
 def _get_sample_data_text(filename, sampledata):
     return f"{filename}:\n{sampledata}"
 
 class DataManager:
-    def __init__(self):
+    def __init__(self, task_name):
         sample_data_dict = {}
 
         path_to_dir = f"./data/"
+        subprocess.run(["cd", f"./data/"], capture_output=True, text=True)
+        subprocess.run(["kaggle", "competitions", "download", "-c", task_name], capture_output=True, text=True)
+        subprocess.run(["unzip", f"{task_name}.zip"], capture_output=True, text=True)
+        subprocess.run(["cd", f".."], capture_output=True, text=True)
         root, dirs, files = list(os.walk(path_to_dir))[0]
         for file in files:
             if str(file).endswith("csv") or str(file).endswith("tsv"):

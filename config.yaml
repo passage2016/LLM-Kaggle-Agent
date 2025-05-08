@@ -1,5 +1,2 @@
-deepseek_api_key: YOUR_KEY_HERE
+deepseek_api_key: sk-53f9fa15710c4e8e850931e637061cd2
 deepseek_base_url: https://api.deepseek.com/v1
-model_name: deepseek-chat
-kaggle_username: YOUR_USERNAME
-kaggle_key: YOUR_KEY
