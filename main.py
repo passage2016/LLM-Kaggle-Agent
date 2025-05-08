@@ -20,8 +20,9 @@ Specifically, you'll build a model that more accurately predicts the unit sales 
     dm = DataManager(task_name)
     model_name = ["deepseek-chat", "deepseek-reasoner", "chatgpt-4o-latest", "sft"]
     loss = {}
+    device = 3
     for i in range(4):
-        agent = LLMAgent(config, task, dm, model_name[i], i)
+        agent = LLMAgent(config, task, dm, model_name[i], device)
         result = agent.do_task(task_name)
         loss[result[0]] = result[1]
     max_items = heapq.nlargest(n, my_dict.items(), key=lambda item: item[1])
@@ -29,6 +30,8 @@ Specifically, you'll build a model that more accurately predicts the unit sales 
     max_value = max_items[0][1]
     print(f"Model '{max_key}' get max loss {max_value}")
     submit_to_kaggle(task_name, f"./code/{task_name}/{max_key}/submission.csv", "agent submition")
+
+    os.system(f"cd MLAgentBench/ & python -u -m MLAgentBench.runner --python /data/env/mlab/bin/python --task spaceship-titanic --device {device} --log-dir log_titanic  --work-dir workspace --llm-name deepseek-chat --edit-script-llm-name deepseek-chat --fast-llm-name deepseek-chat")
 
     
 
