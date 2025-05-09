@@ -9,6 +9,4 @@ def get_task_description(task_name):
     f = open(f"./temp/{task_name}.txt")
     lines = list(set(f.readlines()))
     html_text = "\n".join(lines)
-
-
-get_task_description("spaceship-titanic")
+    return html_text
