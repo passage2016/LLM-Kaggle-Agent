@@ -1,4 +1,5 @@
 data/
 temp/
+code/
 config.yaml
 MLAgentBench/MLAgentBench/benchmarks/
