@@ -1,0 +1,60 @@
+### 模型相关 (ModelArguments)
+# model_name_or_path: deepseek-ai/DeepSeek-LLM
+# trust_remote_code: true
+# model_name_or_path: deepseek-ai/deepseek-llm-7b-base
+# model_name_or_path: deepseek-ai/DeepSeek-R1-Distill-Llama-70B
+# trust_remote_code: true
+model_name_or_path: deepseek-ai/DeepSeek-V3-0324
+trust_remote_code: true
+upcast_layernorm: true  
+
+### 量化设置 (QuantizationArguments)
+quantization_bit: 8
+quantization_method: bnb
+
+### 微调方法 (FinetuningArguments)
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 4
+lora_target: all
+lora_alpha: 16
+lora_dropout: 0.05
+
+### 数据集 (DataTrainingArguments)
+dataset: law_sft_train
+eval_dataset: law_sft_valid
+dataset_dir: ./data
+template: alpaca
+cutoff_len: 256
+overwrite_cache: true
+dataloader_num_workers: 4
+preprocessing_num_workers: 4
+
+### 输出 & 日志 (TrainingArguments)
+output_dir: ./output/deepseek_r1_llama70b_lora_sft
+run_name: deepseek-r1-llama70b-LawSFT
+overwrite_output_dir: true
+logging_steps: 20
+save_steps: 200
+eval_steps: 200
+report_to: none
+plot_loss: true
+
+### 训练超参 (TrainingArguments continued)
+dataloader_pin_memory: true
+dataloader_prefetch_factor: 2
+dataloader_persistent_workers: true
+
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+gradient_accumulation_steps: 32
+
+# gradient_checkpointing is disabled for efficiency
+# gradient_checkpointing: true
+
+learning_rate: 2e-5
+num_train_epochs: 3
+warmup_ratio: 0.1
+lr_scheduler_type: cosine
+fp16: true

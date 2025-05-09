@@ -1,0 +1,115 @@
+
+### 模型相关 (ModelArguments)
+model_name_or_path: deepseek-ai/DeepSeek-R1-Distill-Llama-70B
+trust_remote_code: true
+
+### 量化设置 (QuantizationArguments)
+quantization_bit: 4
+quantization_method: bnb
+
+### 微调方法 (FinetuningArguments)
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 8
+#lora_target: all
+lora_target: q_proj,k_proj  
+lora_alpha: 16
+lora_dropout: 0.05
+
+### 数据集 (DataTrainingArguments)
+# 在 data/dataset_info.json 里注册这两个 key
+dataset: law_sft_train
+eval_dataset: law_sft_valid
+dataset_dir: ./data
+template: alpaca
+cutoff_len: 256
+#2048
+overwrite_cache: true
+dataloader_num_workers: 4
+preprocessing_num_workers: 4
+
+### 输出 & 日志 (TrainingArguments)
+output_dir: ./output/deepseek_r1_llama70b_lora_sft
+run_name: deepseek-r1-llama70b-LawSFT
+overwrite_output_dir: true
+logging_steps: 100
+save_steps: 1000
+eval_steps: 1000
+report_to: none
+plot_loss: true
+
+### 训练超参 (TrainingArguments continued)
+dataloader_pin_memory: true
+dataloader_prefetch_factor: 2
+dataloader_persistent_workers: true
+
+per_device_train_batch_size: 8
+per_device_eval_batch_size: 16
+gradient_accumulation_steps: 4
+
+gradient_checkpointing: true
+
+
+learning_rate: 0.0002
+
+num_train_epochs: 3
+warmup_ratio: 0.1
+lr_scheduler_type: cosine
+fp16: true
+### 模型相关 (ModelArguments)
+# model_name_or_path: Qwen/Qwen2.5-3B-Instruct   # 切换到 3B 版本，减半模型规模
+# trust_remote_code: true
+
+# ### 量化设置 (QuantizationArguments)
+# quantization_bit: 8                            # 建议在显存允许时优先尝试 8bit 以提升速度 :contentReference[oaicite:5]{index=5}
+# quantization_method: bnb
+
+# ### 微调方法 (FinetuningArguments)
+# stage: sft
+# do_train: true
+# finetuning_type: lora
+# lora_rank: 4
+# lora_target: all   #q_proj,k_proj                     # 仅对关键投影层注入 LoRA，减少计算开销 :contentReference[oaicite:6]{index=6}
+# lora_alpha: 16
+# lora_dropout: 0.05
+
+# ### 数据集 (DataTrainingArguments)
+# dataset: law_sft_train
+# eval_dataset: law_sft_valid
+# dataset_dir: ./data
+# template: alpaca
+# cutoff_len: 256   #128                                # 缩减最大序列长度至 128，减少不必要计算 :contentReference[oaicite:7]{index=7}
+# overwrite_cache: true
+# dataloader_num_workers: 4
+# preprocessing_num_workers: 4
+
+# ### 输出 & 日志 (TrainingArguments)
+# output_dir: ./output/qwen2p5_lora_sft
+# run_name: qwen2.5-3B-Instruct-LawSFT
+# overwrite_output_dir: true
+# logging_steps: 100
+# save_steps: 1000
+# eval_steps: 1000
+# report_to: none
+# plot_loss: true
+
+# ### 训练超参 (TrainingArguments continued)
+# # 关闭梯度检查点能显著提速，若显存不足再启用
+# # gradient_checkpointing: true            # 建议暂时注释此行以提升速度 :contentReference[oaicite:8]{index=8}
+
+# per_device_train_batch_size: 32               # 在 4090 上可尝试更大批量
+# per_device_eval_batch_size: 32
+# gradient_accumulation_steps: 2                # 配合更大批量减少累积步数
+# fp16: true                                    # 半精度训练
+
+# learning_rate: 0.0002
+# num_train_epochs: 3
+# warmup_ratio: 0.1
+# lr_scheduler_type: cosine
+
+# # 建议去掉或下调预取因子，单 GPU 场景进程切换开销可能抵消收益
+# # dataloader_prefetch_factor: 2
+# dataloader_pin_memory: true
+# dataloader_persistent_workers: true
+
